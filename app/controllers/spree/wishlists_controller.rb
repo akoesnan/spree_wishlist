@@ -6,7 +6,6 @@ class Spree::WishlistsController < Spree::BaseController
 
   def new
     @wishlist = Spree::Wishlist.new
-
     respond_with(@wishlist)
   end
 
@@ -25,22 +24,30 @@ class Spree::WishlistsController < Spree::BaseController
 
   def show
     @wishlist = Spree::Wishlist.find_by_access_hash(params[:id])
-
     respond_with(@wishlist)
+  end
+
+  def default
+    @wishlist = current_user.wishlist
+    respond_with(@wishlist) do |format|
+      format.html { render 'show' }
+    end
   end
 
   def create
     @wishlist = Spree::Wishlist.new(params[:wishlist])
     @wishlist.user = current_user
-
     @wishlist.save
+
+    # make the newest one default wishlist
+    @wishlist.is_default = true;
     respond_with(@wishlist)
   end
 
   def destroy
     @wishlist = Spree::Wishlist.find_by_access_hash(params[:id])
     @wishlist.destroy
-    respond_with(@wishlist )do |format|
+    respond_with(@wishlist) do |format|
       format.html { redirect_to account_path }
     end
   end
